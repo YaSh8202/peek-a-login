@@ -1,4 +1,4 @@
-import { motion, type MotionValue } from "framer-motion";
+import { motion, useTransform, useSpring, type MotionValue } from "framer-motion";
 
 interface NuggetProps {
   cursorX: MotionValue<number>;
@@ -8,9 +8,76 @@ interface NuggetProps {
 /**
  * Nugget - The Yellow One
  * Front right position, thumb/gumdrop shaped with a right tilt
- * Single eye (profile view) with horizontal mouth line
+ * 3D-like face that rotates based on cursor position
  */
-export function Nugget(_props: NuggetProps) {
+export function Nugget({ cursorX, cursorY }: NuggetProps) {
+  // Body dimensions
+  const bodyLeft = 320;
+  const bodyRight = 420;
+  const bodyTop = 230;
+  const bodyWidth = bodyRight - bodyLeft; // 100
+  const bodyCenterX = bodyLeft + bodyWidth / 2; // 370
+
+  // Face center
+  const faceCenterX = bodyCenterX;
+  const faceCenterY = bodyTop + 0; // Near top of body
+
+  // Calculate horizontal rotation factor (-1 = looking left, 0 = center, 1 = looking right)
+  const rotationFactor = useSpring(
+    useTransform(cursorX, (cx) => {
+      const dx = cx - faceCenterX;
+      // Normalize: -1 to 1 based on distance, with sensitivity
+      return Math.max(-1, Math.min(1, dx / 150));
+    }),
+    { stiffness: 100, damping: 15 }
+  );
+
+  // Vertical factor for mouth position (-1 = up, 0 = center, 1 = down)
+  const verticalFactor = useSpring(
+    useTransform(cursorY, (cy) => {
+      const dy = cy - faceCenterY;
+      return Math.max(-1, Math.min(1, dy / 150));
+    }),
+    { stiffness: 100, damping: 15 }
+  );
+
+  // Eye positions - shift based on rotation to create 3D effect
+  // Left eye: visible when looking right, hidden when looking left
+  const leftEyeX = useTransform(rotationFactor, (r) => {
+    // Base position is -35 from center, shifts with rotation
+    return faceCenterX - 35 + r * 40;
+  });
+  // Left eye hidden when it goes past left edge of body
+  const leftEyeVisible = useTransform(leftEyeX, (x) => x > bodyLeft + 10);
+
+  // Right eye: visible when looking left, hidden when looking right
+  const rightEyeX = useTransform(rotationFactor, (r) => {
+    // Base position is +35 from center, shifts with rotation
+    return faceCenterX + 35 + r * 40;
+  });
+  // Right eye hidden when it goes past right edge of body
+  const rightEyeVisible = useTransform(rightEyeX, (x) => x < bodyRight - 10);
+
+  // Eye Y position - moves up/down with cursor
+  const eyeY = useTransform(verticalFactor, (v) => {
+    return faceCenterY + v * 10;
+  });
+
+  // Mouth position and width - creates profile effect
+  const mouthCenterX = useTransform(rotationFactor, (r) => {
+    // Mouth shifts horizontally with rotation
+    return faceCenterX + r * 30;
+  });
+  const mouthY = useTransform(verticalFactor, (v) => {
+    // Mouth moves up/down slightly based on vertical cursor position
+    return faceCenterY + 25 + v * 5;
+  });
+  const mouthWidth = useTransform(rotationFactor, (r) => {
+    // Mouth gets shorter when viewed from side, longer when centered
+    // At center (r=0): full width (40), at sides (r=±1): shorter (28)
+    return 40 * (1 - Math.abs(r) * 0.3);
+  });
+
   return (
     <motion.g
       initial={{ opacity: 0, scale: 0.8 }}
@@ -24,18 +91,39 @@ export function Nugget(_props: NuggetProps) {
         fill="#f3d300"
       />
 
-      {/* Eye: Single black dot (profile view) on left side of face */}
-      <circle cx={350} cy={230} r={4} fill="black" />
+      {/* Left Eye: Hidden when behind body edge */}
+      <motion.circle
+        r={4}
+        fill="black"
+        style={{
+          cx: leftEyeX,
+          cy: eyeY,
+          opacity: useTransform(leftEyeVisible, (v) => (v ? 1 : 0)),
+        }}
+      />
 
-      {/* Mouth: Horizontal line on right side, 15px below eye */}
-      <line
-        x1={360}
-        y1={250}
-        x2={430}
-        y2={250}
+      {/* Right Eye: Hidden when behind body edge */}
+      <motion.circle
+        r={4}
+        fill="black"
+        style={{
+          cx: rightEyeX,
+          cy: eyeY,
+          opacity: useTransform(rightEyeVisible, (v) => (v ? 1 : 0)),
+        }}
+      />
+
+      {/* Mouth: Horizontal line that shifts and changes width */}
+      <motion.line
         stroke="black"
         strokeWidth={4}
         strokeLinecap="round"
+        style={{
+          x1: useTransform([mouthCenterX, mouthWidth], ([cx, w]) => (cx as number) - (w as number)),
+          x2: useTransform([mouthCenterX, mouthWidth], ([cx, w]) => (cx as number) + (w as number)),
+          y1: mouthY,
+          y2: mouthY,
+        }}
       />
     </motion.g>
   );
