@@ -81,6 +81,13 @@ export function Inky({ cursorX, cursorY }: InkyProps) {
           translateX: faceCenterX + leftEyeOffsetX,
           translateY: faceCenterY + eyeOffsetY,
         }}
+        animate={{ scaleY: [1, 0.1, 1] }}
+        transition={{
+          duration: 0.2,
+          repeat: Infinity,
+          repeatDelay: 2,
+          delay: 1,
+        }}
       />
 
       {/* Left Eye Pupil - moves with face + additional pupil movement */}
@@ -92,6 +99,13 @@ export function Inky({ cursorX, cursorY }: InkyProps) {
           y: leftPupilTotalY,
           translateX: faceCenterX + leftEyeOffsetX,
           translateY: faceCenterY + eyeOffsetY,
+        }}
+        animate={{ scaleY: [1, 0.1, 1] }}
+        transition={{
+          duration: 0.2,
+          repeat: Infinity,
+          repeatDelay: 2,
+          delay: 1,
         }}
       />
 
@@ -105,6 +119,13 @@ export function Inky({ cursorX, cursorY }: InkyProps) {
           translateX: faceCenterX + rightEyeOffsetX,
           translateY: faceCenterY + eyeOffsetY,
         }}
+        animate={{ scaleY: [1, 0.1, 1] }}
+        transition={{
+          duration: 0.2,
+          repeat: Infinity,
+          repeatDelay: 2,
+          delay: 1,
+        }}
       />
 
       {/* Right Eye Pupil - moves with face + additional pupil movement */}
@@ -116,6 +137,13 @@ export function Inky({ cursorX, cursorY }: InkyProps) {
           y: rightPupilTotalY,
           translateX: faceCenterX + rightEyeOffsetX,
           translateY: faceCenterY + eyeOffsetY,
+        }}
+        animate={{ scaleY: [1, 0.1, 1] }}
+        transition={{
+          duration: 0.2,
+          repeat: Infinity,
+          repeatDelay: 2,
+          delay: 1,
         }}
       />
 

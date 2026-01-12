@@ -16,7 +16,7 @@ export function Violetto({ cursorX, cursorY }: ViolettoProps) {
   const bodyY = 20;
   const bodyWidth = 165;
   const bodyHeight = 340;
-  
+
   // Head region (top portion of body)
   const headHeight = 80;
   const headCenterX = bodyX + bodyWidth / 2; // 217.5
@@ -30,7 +30,7 @@ export function Violetto({ cursorX, cursorY }: ViolettoProps) {
   const leftEyeOffsetX = -25;
   const rightEyeOffsetX = 25;
   const eyeOffsetY = -8;
-  
+
   // Mouth position relative to face center
   const mouthOffsetY = 20;
 
@@ -84,6 +84,13 @@ export function Violetto({ cursorX, cursorY }: ViolettoProps) {
           translateX: faceCenterX + leftEyeOffsetX,
           translateY: faceCenterY + eyeOffsetY,
         }}
+        animate={{ scaleY: [1, 0.1, 1] }}
+        transition={{
+          duration: 0.2,
+          repeat: Infinity,
+          repeatDelay: 2,
+          delay: 0,
+        }}
       />
 
       {/* Left Eye Pupil - moves with face + additional pupil movement */}
@@ -95,6 +102,13 @@ export function Violetto({ cursorX, cursorY }: ViolettoProps) {
           y: leftPupilTotalY,
           translateX: faceCenterX + leftEyeOffsetX,
           translateY: faceCenterY + eyeOffsetY,
+        }}
+        animate={{ scaleY: [1, 0.1, 1] }}
+        transition={{
+          duration: 0.2,
+          repeat: Infinity,
+          repeatDelay: 2,
+          delay: 0,
         }}
       />
 
@@ -108,6 +122,13 @@ export function Violetto({ cursorX, cursorY }: ViolettoProps) {
           translateX: faceCenterX + rightEyeOffsetX,
           translateY: faceCenterY + eyeOffsetY,
         }}
+        animate={{ scaleY: [1, 0.1, 1] }}
+        transition={{
+          duration: 0.2,
+          repeat: Infinity,
+          repeatDelay: 2,
+          delay: 0,
+        }}
       />
 
       {/* Right Eye Pupil - moves with face + additional pupil movement */}
@@ -120,11 +141,22 @@ export function Violetto({ cursorX, cursorY }: ViolettoProps) {
           translateX: faceCenterX + rightEyeOffsetX,
           translateY: faceCenterY + eyeOffsetY,
         }}
+        animate={{ scaleY: [1, 0.1, 1] }}
+        transition={{
+          duration: 0.2,
+          repeat: Infinity,
+          repeatDelay: 2,
+          delay: 0,
+        }}
       />
 
       {/* Mouth: Small horizontal smile - moves with face */}
       <motion.path
-        d={`M ${faceCenterX - 8} ${faceCenterY + mouthOffsetY} Q ${faceCenterX} ${faceCenterY + mouthOffsetY + 4} ${faceCenterX + 8} ${faceCenterY + mouthOffsetY}`}
+        d={`M ${faceCenterX - 8} ${
+          faceCenterY + mouthOffsetY
+        } Q ${faceCenterX} ${faceCenterY + mouthOffsetY + 4} ${
+          faceCenterX + 8
+        } ${faceCenterY + mouthOffsetY}`}
         stroke="black"
         strokeWidth={4}
         strokeLinecap="round"

@@ -64,6 +64,13 @@ export function Gloop({ cursorX, cursorY }: GloopProps) {
           translateX: faceCenterX + leftEyeOffsetX,
           translateY: faceCenterY + eyeOffsetY,
         }}
+        animate={{ scaleY: [1, 0.1, 1] }}
+        transition={{
+          duration: 0.2,
+          repeat: Infinity,
+          repeatDelay: 2,
+          delay: 0.5,
+        }}
       />
 
       {/* Right Eye: Simple black dot - moves with face */}
@@ -75,6 +82,13 @@ export function Gloop({ cursorX, cursorY }: GloopProps) {
           y: face.faceOffsetY,
           translateX: faceCenterX + rightEyeOffsetX,
           translateY: faceCenterY + eyeOffsetY,
+        }}
+        animate={{ scaleY: [1, 0.1, 1] }}
+        transition={{
+          duration: 0.2,
+          repeat: Infinity,
+          repeatDelay: 2,
+          delay: 0.5,
         }}
       />
 

@@ -1,4 +1,9 @@
-import { motion, useTransform, useSpring, type MotionValue } from "framer-motion";
+import {
+  motion,
+  useTransform,
+  useSpring,
+  type MotionValue,
+} from "framer-motion";
 
 interface NuggetProps {
   cursorX: MotionValue<number>;
@@ -100,6 +105,13 @@ export function Nugget({ cursorX, cursorY }: NuggetProps) {
           cy: eyeY,
           opacity: useTransform(leftEyeVisible, (v) => (v ? 1 : 0)),
         }}
+        animate={{ scaleY: [1, 0.1, 1] }}
+        transition={{
+          duration: 0.2,
+          repeat: Infinity,
+          repeatDelay: 2.0,
+          delay: 1.5,
+        }}
       />
 
       {/* Right Eye: Hidden when behind body edge */}
@@ -111,6 +123,13 @@ export function Nugget({ cursorX, cursorY }: NuggetProps) {
           cy: eyeY,
           opacity: useTransform(rightEyeVisible, (v) => (v ? 1 : 0)),
         }}
+        animate={{ scaleY: [1, 0.1, 1] }}
+        transition={{
+          duration: 0.2,
+          repeat: Infinity,
+          repeatDelay: 2.0,
+          delay: 1.5,
+        }}
       />
 
       {/* Mouth: Horizontal line that shifts and changes width */}
@@ -119,8 +138,14 @@ export function Nugget({ cursorX, cursorY }: NuggetProps) {
         strokeWidth={4}
         strokeLinecap="round"
         style={{
-          x1: useTransform([mouthCenterX, mouthWidth], ([cx, w]) => (cx as number) - (w as number)),
-          x2: useTransform([mouthCenterX, mouthWidth], ([cx, w]) => (cx as number) + (w as number)),
+          x1: useTransform(
+            [mouthCenterX, mouthWidth],
+            ([cx, w]) => (cx as number) - (w as number)
+          ),
+          x2: useTransform(
+            [mouthCenterX, mouthWidth],
+            ([cx, w]) => (cx as number) + (w as number)
+          ),
           y1: mouthY,
           y2: mouthY,
         }}
