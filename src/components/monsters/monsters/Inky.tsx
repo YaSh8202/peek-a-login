@@ -1,16 +1,18 @@
-import { motion, useTransform, type MotionValue } from "framer-motion";
+import { motion, useTransform, useSpring, useMotionValue, type MotionValue } from "motion/react";
+import { useEffect } from "react";
 import { useFaceTracking } from "../hooks/useEyeTracking";
 
 interface InkyProps {
   cursorX: MotionValue<number>;
   cursorY: MotionValue<number>;
+  isFormFocused?: boolean;
 }
 
 /**
  * Inky - The Dark Shadow
  * Back right position, rectangular pillar with googly eyes that touch
  */
-export function Inky({ cursorX, cursorY }: InkyProps) {
+export function Inky({ cursorX, cursorY, isFormFocused = false }: InkyProps) {
   // Body dimensions
   const bodyX = 250;
   const bodyY = 120;
@@ -37,6 +39,19 @@ export function Inky({ cursorX, cursorY }: InkyProps) {
     maxPupilDistance: 5,
   });
 
+  // Lean animation when form is focused - use skewX to keep base flat
+  const leanSkewValue = useMotionValue(0);
+  const leanSkew = useSpring(leanSkewValue, {
+    stiffness: 1000,
+    damping: 50,
+    mass: 0.1,
+  });
+
+  useEffect(() => {
+    // Negative skewX leans the top to the right while keeping bottom flat
+    leanSkewValue.set(isFormFocused ? -8 : 0);
+  }, [isFormFocused, leanSkewValue]);
+
   // Combine face offset with pupil offset for total pupil position
   const leftPupilTotalX = useTransform(
     [face.faceOffsetX, face.pupilOffsetX],
@@ -61,6 +76,13 @@ export function Inky({ cursorX, cursorY }: InkyProps) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.2 }}
     >
+      <motion.g
+        style={{
+          skewX: leanSkew,
+          transformOrigin: "bottom center",
+        }}
+      >
+        <g>
       {/* Body: Rectangular pillar */}
       <rect
         x={bodyX}
@@ -148,6 +170,8 @@ export function Inky({ cursorX, cursorY }: InkyProps) {
       />
 
       {/* No mouth - the silent type */}
+        </g>
+      </motion.g>
     </motion.g>
   );
 }

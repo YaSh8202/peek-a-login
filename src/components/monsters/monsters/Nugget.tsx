@@ -2,12 +2,15 @@ import {
   motion,
   useTransform,
   useSpring,
+  useMotionValue,
   type MotionValue,
-} from "framer-motion";
+} from "motion/react";
+import { useEffect } from "react";
 
 interface NuggetProps {
   cursorX: MotionValue<number>;
   cursorY: MotionValue<number>;
+  isFormFocused?: boolean;
 }
 
 /**
@@ -15,7 +18,11 @@ interface NuggetProps {
  * Front right position, thumb/gumdrop shaped with a right tilt
  * 3D-like face that rotates based on cursor position
  */
-export function Nugget({ cursorX, cursorY }: NuggetProps) {
+export function Nugget({
+  cursorX,
+  cursorY,
+  isFormFocused = false,
+}: NuggetProps) {
   // Body dimensions
   const bodyLeft = 320;
   const bodyRight = 420;
@@ -83,73 +90,96 @@ export function Nugget({ cursorX, cursorY }: NuggetProps) {
     return 40 * (1 - Math.abs(r) * 0.3);
   });
 
+  // Lean animation when form is focused - use skewX to keep base flat
+  const leanSkewValue = useMotionValue(0);
+  const leanSkew = useSpring(leanSkewValue, {
+    stiffness: 1000,
+    damping: 50,
+    mass: 0.1,
+  });
+
+  useEffect(() => {
+    // Negative skewX leans the top to the right while keeping bottom flat
+    leanSkewValue.set(isFormFocused ? -5 : 0);
+  }, [isFormFocused, leanSkewValue]);
+
   return (
-    <motion.g
-      initial={{ opacity: 0, scale: 0.8 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.5, delay: 0.4 }}
-      transform="rotate(10, 370, 300)"
-    >
-      {/* Body: Rounded top, flat bottom (gumdrop/thumb shape) */}
-      <path
-        d="M 320 360 L 320 230 A 50 50 0 0 1 420 230 L 420 360 Z"
-        fill="#f3d300"
-      />
+    <g>
+      <motion.g
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5, delay: 0.4 }}
+      >
+        <motion.g
+          style={{
+            skewX: leanSkew,
+            transformOrigin: "bottom center",
+          }}
+        >
+          <g>
+            {/* Body: Rounded top, flat bottom (gumdrop/thumb shape) */}
+            <path
+              d="M 320 360 L 320 230 A 50 50 0 0 1 420 230 L 420 360 Z"
+              fill="#f3d300"
+            />
 
-      {/* Left Eye: Hidden when behind body edge */}
-      <motion.circle
-        r={4}
-        fill="black"
-        style={{
-          cx: leftEyeX,
-          cy: eyeY,
-          opacity: useTransform(leftEyeVisible, (v) => (v ? 1 : 0)),
-        }}
-        animate={{ scaleY: [1, 0.1, 1] }}
-        transition={{
-          duration: 0.2,
-          repeat: Infinity,
-          repeatDelay: 2.0,
-          delay: 1.5,
-        }}
-      />
+            {/* Left Eye: Hidden when behind body edge */}
+            <motion.circle
+              r={4}
+              fill="black"
+              style={{
+                cx: leftEyeX,
+                cy: eyeY,
+                opacity: useTransform(leftEyeVisible, (v) => (v ? 1 : 0)),
+              }}
+              animate={{ scaleY: [1, 0.1, 1] }}
+              transition={{
+                duration: 0.2,
+                repeat: Infinity,
+                repeatDelay: 2.0,
+                delay: 1.5,
+              }}
+            />
 
-      {/* Right Eye: Hidden when behind body edge */}
-      <motion.circle
-        r={4}
-        fill="black"
-        style={{
-          cx: rightEyeX,
-          cy: eyeY,
-          opacity: useTransform(rightEyeVisible, (v) => (v ? 1 : 0)),
-        }}
-        animate={{ scaleY: [1, 0.1, 1] }}
-        transition={{
-          duration: 0.2,
-          repeat: Infinity,
-          repeatDelay: 2.0,
-          delay: 1.5,
-        }}
-      />
+            {/* Right Eye: Hidden when behind body edge */}
+            <motion.circle
+              r={4}
+              fill="black"
+              style={{
+                cx: rightEyeX,
+                cy: eyeY,
+                opacity: useTransform(rightEyeVisible, (v) => (v ? 1 : 0)),
+              }}
+              animate={{ scaleY: [1, 0.1, 1] }}
+              transition={{
+                duration: 0.2,
+                repeat: Infinity,
+                repeatDelay: 2.0,
+                delay: 1.5,
+              }}
+            />
 
-      {/* Mouth: Horizontal line that shifts and changes width */}
-      <motion.line
-        stroke="black"
-        strokeWidth={4}
-        strokeLinecap="round"
-        style={{
-          x1: useTransform(
-            [mouthCenterX, mouthWidth],
-            ([cx, w]) => (cx as number) - (w as number)
-          ),
-          x2: useTransform(
-            [mouthCenterX, mouthWidth],
-            ([cx, w]) => (cx as number) + (w as number)
-          ),
-          y1: mouthY,
-          y2: mouthY,
-        }}
-      />
-    </motion.g>
+            {/* Mouth: Horizontal line that shifts and changes width */}
+            <motion.line
+              stroke="black"
+              strokeWidth={4}
+              strokeLinecap="round"
+              style={{
+                x1: useTransform(
+                  [mouthCenterX, mouthWidth],
+                  ([cx, w]) => (cx as number) - (w as number)
+                ),
+                x2: useTransform(
+                  [mouthCenterX, mouthWidth],
+                  ([cx, w]) => (cx as number) + (w as number)
+                ),
+                y1: mouthY,
+                y2: mouthY,
+              }}
+            />
+          </g>
+        </motion.g>
+      </motion.g>
+    </g>
   );
 }

@@ -1,4 +1,4 @@
-import { useSpring, useTransform, type MotionValue } from "framer-motion";
+import { useSpring, useTransform, type MotionValue } from "motion/react";
 
 interface EyeTrackingOptions {
   /** Maximum distance pupil can move from center (default: 6) */
@@ -32,10 +32,11 @@ export function useEyeTracking(
   options: EyeTrackingOptions | number = {}
 ) {
   // Support legacy API where 5th param was maxDistance number
-  const config: EyeTrackingOptions = typeof options === 'number' 
-    ? { maxPupilDistance: options, maxEyeShift: 0 } 
-    : options;
-  
+  const config: EyeTrackingOptions =
+    typeof options === "number"
+      ? { maxPupilDistance: options, maxEyeShift: 0 }
+      : options;
+
   const maxPupilDistance = config.maxPupilDistance ?? 6;
   const maxEyeShift = config.maxEyeShift ?? 8;
 
@@ -55,30 +56,34 @@ export function useEyeTracking(
 
   // Eye position offset (the entire eye moves)
   const eyeOffsetX = useSpring(
-    useTransform([angle, normalizedDistance], ([a, d]) => 
-      Math.cos(a as number) * (d as number) * maxEyeShift
+    useTransform(
+      [angle, normalizedDistance],
+      ([a, d]) => Math.cos(a as number) * (d as number) * maxEyeShift
     ),
     { stiffness: 120, damping: 20 }
   );
 
   const eyeOffsetY = useSpring(
-    useTransform([angle, normalizedDistance], ([a, d]) => 
-      Math.sin(a as number) * (d as number) * maxEyeShift
+    useTransform(
+      [angle, normalizedDistance],
+      ([a, d]) => Math.sin(a as number) * (d as number) * maxEyeShift
     ),
     { stiffness: 120, damping: 20 }
   );
 
   // Pupil position offset (moves within the eye)
   const pupilX = useSpring(
-    useTransform([angle, normalizedDistance], ([a, d]) => 
-      Math.cos(a as number) * (d as number) * maxPupilDistance
+    useTransform(
+      [angle, normalizedDistance],
+      ([a, d]) => Math.cos(a as number) * (d as number) * maxPupilDistance
     ),
     { stiffness: 150, damping: 15 }
   );
 
   const pupilY = useSpring(
-    useTransform([angle, normalizedDistance], ([a, d]) => 
-      Math.sin(a as number) * (d as number) * maxPupilDistance
+    useTransform(
+      [angle, normalizedDistance],
+      ([a, d]) => Math.sin(a as number) * (d as number) * maxPupilDistance
     ),
     { stiffness: 150, damping: 15 }
   );
@@ -107,7 +112,10 @@ export function useFaceTracking(
 
   // Calculate angle from face center to cursor
   const angle = useTransform([cursorX, cursorY], ([cx, cy]) => {
-    return Math.atan2((cy as number) - faceCenterY, (cx as number) - faceCenterX);
+    return Math.atan2(
+      (cy as number) - faceCenterY,
+      (cx as number) - faceCenterX
+    );
   });
 
   // Calculate normalized distance factor (0 to 1)
@@ -121,30 +129,34 @@ export function useFaceTracking(
 
   // Face position offset (the entire face moves - eyes, mouth, everything)
   const faceOffsetX = useSpring(
-    useTransform([angle, normalizedDistance], ([a, d]) => 
-      Math.cos(a as number) * (d as number) * maxFaceShift
+    useTransform(
+      [angle, normalizedDistance],
+      ([a, d]) => Math.cos(a as number) * (d as number) * maxFaceShift
     ),
     { stiffness: 100, damping: 20 }
   );
 
   const faceOffsetY = useSpring(
-    useTransform([angle, normalizedDistance], ([a, d]) => 
-      Math.sin(a as number) * (d as number) * maxFaceShift
+    useTransform(
+      [angle, normalizedDistance],
+      ([a, d]) => Math.sin(a as number) * (d as number) * maxFaceShift
     ),
     { stiffness: 100, damping: 20 }
   );
 
   // Pupil position offset (moves within the eye, on top of face movement)
   const pupilOffsetX = useSpring(
-    useTransform([angle, normalizedDistance], ([a, d]) => 
-      Math.cos(a as number) * (d as number) * maxPupilDistance
+    useTransform(
+      [angle, normalizedDistance],
+      ([a, d]) => Math.cos(a as number) * (d as number) * maxPupilDistance
     ),
     { stiffness: 180, damping: 12 }
   );
 
   const pupilOffsetY = useSpring(
-    useTransform([angle, normalizedDistance], ([a, d]) => 
-      Math.sin(a as number) * (d as number) * maxPupilDistance
+    useTransform(
+      [angle, normalizedDistance],
+      ([a, d]) => Math.sin(a as number) * (d as number) * maxPupilDistance
     ),
     { stiffness: 180, damping: 12 }
   );

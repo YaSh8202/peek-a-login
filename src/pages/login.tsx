@@ -1,6 +1,25 @@
+import { useState, useRef } from "react";
 import { InteractiveMonsters } from "@/components/monsters/InteractiveMonsters";
 
 export default function Login() {
+  const [isFormFocused, setIsFormFocused] = useState(false);
+  const blurTimeoutRef = useRef<number | null>(null);
+
+  const handleFocus = () => {
+    // Clear any pending blur timeout
+    if (blurTimeoutRef.current !== null) {
+      clearTimeout(blurTimeoutRef.current);
+      blurTimeoutRef.current = null;
+    }
+    setIsFormFocused(true);
+  };
+
+  const handleBlur = () => {
+    // Delay blur to prevent wobble when tabbing between fields
+    blurTimeoutRef.current = window.setTimeout(() => {
+      setIsFormFocused(false);
+    }, 100);
+  };
   return (
     <div className="h-screen w-screen flex items-center justify-center">
       <div className="w-300 h-180 flex border border-gray-200 rounded-xl shadow-md overflow-hidden">
@@ -8,7 +27,7 @@ export default function Login() {
         <div className="flex-1 relative bg-gray-200 p-12 flex items-center justify-center">
           {/* Geometric shapes with eyes */}
           <div className="relative w-full max-w-md h-96">
-            <InteractiveMonsters />
+            <InteractiveMonsters isFormFocused={isFormFocused} />
           </div>
         </div>
 
@@ -33,6 +52,8 @@ export default function Login() {
                   type="email"
                   id="email"
                   className="w-full px-0 py-3 border-0 border-b-2 border-gray-300 focus:border-gray-900 focus:outline-none focus:ring-0 transition-colors"
+                  onFocus={handleFocus}
+                  onBlur={handleBlur}
                 />
               </div>
 
@@ -49,6 +70,8 @@ export default function Login() {
                     type="password"
                     id="password"
                     className="w-full px-0 py-3 pr-10 border-0 border-b-2 border-gray-300 focus:border-gray-900 focus:outline-none focus:ring-0 transition-colors"
+                    onFocus={handleFocus}
+                    onBlur={handleBlur}
                   />
                 </div>
               </div>

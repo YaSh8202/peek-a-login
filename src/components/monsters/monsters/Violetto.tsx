@@ -1,16 +1,28 @@
-import { motion, useTransform, type MotionValue } from "framer-motion";
+import {
+  motion,
+  useTransform,
+  useSpring,
+  useMotionValue,
+  type MotionValue,
+} from "motion/react";
+import { useEffect } from "react";
 import { useFaceTracking } from "../hooks/useEyeTracking";
 
 interface ViolettoProps {
   cursorX: MotionValue<number>;
   cursorY: MotionValue<number>;
+  isFormFocused?: boolean;
 }
 
 /**
  * Violetto - The Tall Purple One
  * Back left position, tall rectangle shape with wide-set eyes
  */
-export function Violetto({ cursorX, cursorY }: ViolettoProps) {
+export function Violetto({
+  cursorX,
+  cursorY,
+  isFormFocused = false,
+}: ViolettoProps) {
   // Body dimensions
   const bodyX = 135;
   const bodyY = 20;
@@ -40,6 +52,19 @@ export function Violetto({ cursorX, cursorY }: ViolettoProps) {
     maxPupilDistance: 4,
   });
 
+  // Lean animation when form is focused - use skewX to keep base flat
+  const leanSkewValue = useMotionValue(0);
+  const leanSkew = useSpring(leanSkewValue, {
+    stiffness: 1000,
+    damping: 50,
+    mass: 0.1,
+  });
+
+  useEffect(() => {
+    // Negative skewX leans the top to the right while keeping bottom flat
+    leanSkewValue.set(isFormFocused ? -8 : 0);
+  }, [isFormFocused, leanSkewValue]);
+
   // Combine face offset with pupil offset for total pupil position
   const leftPupilTotalX = useTransform(
     [face.faceOffsetX, face.pupilOffsetX],
@@ -64,108 +89,117 @@ export function Violetto({ cursorX, cursorY }: ViolettoProps) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.1 }}
     >
-      {/* Body: Tall rectangle */}
-      <rect
-        x={bodyX}
-        y={bodyY}
-        width={bodyWidth}
-        height={bodyHeight}
-        fill="#7e27ff"
-        rx={2}
-      />
-
-      {/* Left Eye Sclera - moves with face */}
-      <motion.circle
-        r={8}
-        fill="white"
+      <motion.g
         style={{
-          x: face.faceOffsetX,
-          y: face.faceOffsetY,
-          translateX: faceCenterX + leftEyeOffsetX,
-          translateY: faceCenterY + eyeOffsetY,
+          skewX: leanSkew,
+          transformOrigin: "bottom center",
         }}
-        animate={{ scaleY: [1, 0.1, 1] }}
-        transition={{
-          duration: 0.2,
-          repeat: Infinity,
-          repeatDelay: 2,
-          delay: 0,
-        }}
-      />
+      >
+        <g>
+          {/* Body: Tall rectangle */}
+          <rect
+            x={bodyX}
+            y={bodyY}
+            width={bodyWidth}
+            height={bodyHeight}
+            fill="#7e27ff"
+            rx={2}
+          />
 
-      {/* Left Eye Pupil - moves with face + additional pupil movement */}
-      <motion.circle
-        r={4}
-        fill="black"
-        style={{
-          x: leftPupilTotalX,
-          y: leftPupilTotalY,
-          translateX: faceCenterX + leftEyeOffsetX,
-          translateY: faceCenterY + eyeOffsetY,
-        }}
-        animate={{ scaleY: [1, 0.1, 1] }}
-        transition={{
-          duration: 0.2,
-          repeat: Infinity,
-          repeatDelay: 2,
-          delay: 0,
-        }}
-      />
+          {/* Left Eye Sclera - moves with face */}
+          <motion.circle
+            r={8}
+            fill="white"
+            style={{
+              x: face.faceOffsetX,
+              y: face.faceOffsetY,
+              translateX: faceCenterX + leftEyeOffsetX,
+              translateY: faceCenterY + eyeOffsetY,
+            }}
+            animate={{ scaleY: [1, 0.1, 1] }}
+            transition={{
+              duration: 0.2,
+              repeat: Infinity,
+              repeatDelay: 2,
+              delay: 0,
+            }}
+          />
 
-      {/* Right Eye Sclera - moves with face */}
-      <motion.circle
-        r={8}
-        fill="white"
-        style={{
-          x: face.faceOffsetX,
-          y: face.faceOffsetY,
-          translateX: faceCenterX + rightEyeOffsetX,
-          translateY: faceCenterY + eyeOffsetY,
-        }}
-        animate={{ scaleY: [1, 0.1, 1] }}
-        transition={{
-          duration: 0.2,
-          repeat: Infinity,
-          repeatDelay: 2,
-          delay: 0,
-        }}
-      />
+          {/* Left Eye Pupil - moves with face + additional pupil movement */}
+          <motion.circle
+            r={4}
+            fill="black"
+            style={{
+              x: leftPupilTotalX,
+              y: leftPupilTotalY,
+              translateX: faceCenterX + leftEyeOffsetX,
+              translateY: faceCenterY + eyeOffsetY,
+            }}
+            animate={{ scaleY: [1, 0.1, 1] }}
+            transition={{
+              duration: 0.2,
+              repeat: Infinity,
+              repeatDelay: 2,
+              delay: 0,
+            }}
+          />
 
-      {/* Right Eye Pupil - moves with face + additional pupil movement */}
-      <motion.circle
-        r={4}
-        fill="black"
-        style={{
-          x: rightPupilTotalX,
-          y: rightPupilTotalY,
-          translateX: faceCenterX + rightEyeOffsetX,
-          translateY: faceCenterY + eyeOffsetY,
-        }}
-        animate={{ scaleY: [1, 0.1, 1] }}
-        transition={{
-          duration: 0.2,
-          repeat: Infinity,
-          repeatDelay: 2,
-          delay: 0,
-        }}
-      />
+          {/* Right Eye Sclera - moves with face */}
+          <motion.circle
+            r={8}
+            fill="white"
+            style={{
+              x: face.faceOffsetX,
+              y: face.faceOffsetY,
+              translateX: faceCenterX + rightEyeOffsetX,
+              translateY: faceCenterY + eyeOffsetY,
+            }}
+            animate={{ scaleY: [1, 0.1, 1] }}
+            transition={{
+              duration: 0.2,
+              repeat: Infinity,
+              repeatDelay: 2,
+              delay: 0,
+            }}
+          />
 
-      {/* Mouth: Small horizontal smile - moves with face */}
-      <motion.path
-        d={`M ${faceCenterX - 8} ${
-          faceCenterY + mouthOffsetY
-        } Q ${faceCenterX} ${faceCenterY + mouthOffsetY + 4} ${
-          faceCenterX + 8
-        } ${faceCenterY + mouthOffsetY}`}
-        stroke="black"
-        strokeWidth={4}
-        strokeLinecap="round"
-        fill="none"
-        style={{
-          x: face.faceOffsetX,
-          y: face.faceOffsetY,
-        }}
-      />
+          {/* Right Eye Pupil - moves with face + additional pupil movement */}
+          <motion.circle
+            r={4}
+            fill="black"
+            style={{
+              x: rightPupilTotalX,
+              y: rightPupilTotalY,
+              translateX: faceCenterX + rightEyeOffsetX,
+              translateY: faceCenterY + eyeOffsetY,
+            }}
+            animate={{ scaleY: [1, 0.1, 1] }}
+            transition={{
+              duration: 0.2,
+              repeat: Infinity,
+              repeatDelay: 2,
+              delay: 0,
+            }}
+          />
+
+          {/* Mouth: Small horizontal smile - moves with face */}
+          <motion.path
+            d={`M ${faceCenterX - 8} ${
+              faceCenterY + mouthOffsetY
+            } Q ${faceCenterX} ${faceCenterY + mouthOffsetY + 4} ${
+              faceCenterX + 8
+            } ${faceCenterY + mouthOffsetY}`}
+            stroke="black"
+            strokeWidth={4}
+            strokeLinecap="round"
+            fill="none"
+            style={{
+              x: face.faceOffsetX,
+              y: face.faceOffsetY,
+            }}
+          />
+        </g>
+      </motion.g>
     </motion.g>
   );
 }

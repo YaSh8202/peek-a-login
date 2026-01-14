@@ -1,16 +1,22 @@
-import { useMotionValue } from "framer-motion";
+import { useMotionValue } from "motion/react";
 import { useRef, useEffect } from "react";
 import { Violetto } from "./monsters/Violetto";
 import { Inky } from "./monsters/Inky";
 import { Gloop } from "./monsters/Gloop";
 import { Nugget } from "./monsters/Nugget";
 
+interface InteractiveMonstersProps {
+  isFormFocused?: boolean;
+}
+
 /**
  * Interactive Monsters Component
  * Renders 4 animated SVG monsters that follow the cursor with their eyes
  * Z-index layering order: Violetto (back) → Inky → Gloop → Nugget (front)
  */
-export function InteractiveMonsters() {
+export function InteractiveMonsters({
+  isFormFocused = false,
+}: InteractiveMonstersProps) {
   const containerRef = useRef<SVGSVGElement>(null);
   const cursorX = useMotionValue(200);
   const cursorY = useMotionValue(200);
@@ -44,10 +50,18 @@ export function InteractiveMonsters() {
       aria-label="Interactive monster characters"
     >
       {/* Render order determines z-index (later = on top) */}
-      <Violetto cursorX={cursorX} cursorY={cursorY} />
-      <Inky cursorX={cursorX} cursorY={cursorY} />
-      <Gloop cursorX={cursorX} cursorY={cursorY} />
-      <Nugget cursorX={cursorX} cursorY={cursorY} />
+      <Violetto
+        cursorX={cursorX}
+        cursorY={cursorY}
+        isFormFocused={isFormFocused}
+      />
+      <Inky cursorX={cursorX} cursorY={cursorY} isFormFocused={isFormFocused} />
+      <Gloop cursorX={cursorX} cursorY={cursorY} isFormFocused={isFormFocused} />
+      <Nugget
+        cursorX={cursorX}
+        cursorY={cursorY}
+        isFormFocused={isFormFocused}
+      />
     </svg>
   );
 }
