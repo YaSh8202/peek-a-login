@@ -56,7 +56,11 @@ export function InteractiveMonsters({
         isFormFocused={isFormFocused}
       />
       <Inky cursorX={cursorX} cursorY={cursorY} isFormFocused={isFormFocused} />
-      <Gloop cursorX={cursorX} cursorY={cursorY} isFormFocused={isFormFocused} />
+      <Gloop
+        cursorX={cursorX}
+        cursorY={cursorY}
+        isFormFocused={isFormFocused}
+      />
       <Nugget
         cursorX={cursorX}
         cursorY={cursorY}

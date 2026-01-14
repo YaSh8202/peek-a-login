@@ -1,4 +1,9 @@
-import { motion, useMotionValue, useSpring, type MotionValue } from "motion/react";
+import {
+  motion,
+  useMotionValue,
+  useSpring,
+  type MotionValue,
+} from "motion/react";
 import { useEffect } from "react";
 import { useFaceTracking } from "../hooks/useEyeTracking";
 
