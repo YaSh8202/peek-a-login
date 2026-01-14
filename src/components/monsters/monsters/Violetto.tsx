@@ -182,22 +182,39 @@ export function Violetto({
             }}
           />
 
-          {/* Mouth: Small horizontal smile - moves with face */}
-          <motion.path
-            d={`M ${faceCenterX - 8} ${
-              faceCenterY + mouthOffsetY
-            } Q ${faceCenterX} ${faceCenterY + mouthOffsetY + 4} ${
-              faceCenterX + 8
-            } ${faceCenterY + mouthOffsetY}`}
-            stroke="black"
-            strokeWidth={4}
-            strokeLinecap="round"
-            fill="none"
-            style={{
-              x: face.faceOffsetX,
-              y: face.faceOffsetY,
-            }}
-          />
+          {/* Mouth - changes based on focus state */}
+          {isFormFocused ? (
+            /* Focused: Attentive vertical line mouth */
+            <motion.rect
+              x={faceCenterX - 1.5}
+              y={faceCenterY + mouthOffsetY - 22}
+              width={4}
+              height={28}
+              rx={1.5}
+              fill="black"
+              style={{
+                x: face.faceOffsetX,
+                y: face.faceOffsetY,
+              }}
+            />
+          ) : (
+            /* Default: Small horizontal smile */
+            <motion.path
+              d={`M ${faceCenterX - 8} ${
+                faceCenterY + mouthOffsetY
+              } Q ${faceCenterX} ${faceCenterY + mouthOffsetY + 4} ${
+                faceCenterX + 8
+              } ${faceCenterY + mouthOffsetY}`}
+              stroke="black"
+              strokeWidth={4}
+              strokeLinecap="round"
+              fill="none"
+              style={{
+                x: face.faceOffsetX,
+                y: face.faceOffsetY,
+              }}
+            />
+          )}
         </g>
       </motion.g>
     </motion.g>

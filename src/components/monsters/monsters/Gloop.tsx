@@ -121,19 +121,34 @@ export function Gloop({ cursorX, cursorY, isFormFocused = false }: GloopProps) {
             }}
           />
 
-          {/* Mouth: Filled smile curve - moves with face */}
-          <motion.path
-            d={`M ${faceCenterX - mouthHalfWidth} ${
-              faceCenterY + mouthOffsetY
-            } Q ${faceCenterX} ${faceCenterY + mouthOffsetY + mouthCurveDepth}, ${
-              faceCenterX + mouthHalfWidth
-            } ${faceCenterY + mouthOffsetY} Z`}
-            fill="black"
-            style={{
-              x: face.faceOffsetX,
-              y: face.faceOffsetY,
-            }}
-          />
+          {/* Mouth - changes based on focus state */}
+          {isFormFocused ? (
+            /* Focused: Stunned dot mouth (same size as eyes) */
+            <motion.circle
+              r={6}
+              fill="black"
+              style={{
+                x: face.faceOffsetX,
+                y: face.faceOffsetY,
+                translateX: faceCenterX,
+                translateY: faceCenterY + mouthOffsetY + 8,
+              }}
+            />
+          ) : (
+            /* Default: Filled smile curve */
+            <motion.path
+              d={`M ${faceCenterX - mouthHalfWidth} ${
+                faceCenterY + mouthOffsetY
+              } Q ${faceCenterX} ${faceCenterY + mouthOffsetY + mouthCurveDepth}, ${
+                faceCenterX + mouthHalfWidth
+              } ${faceCenterY + mouthOffsetY} Z`}
+              fill="black"
+              style={{
+                x: face.faceOffsetX,
+                y: face.faceOffsetY,
+              }}
+            />
+          )}
         </g>
       </motion.g>
     </motion.g>
