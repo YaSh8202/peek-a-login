@@ -1,9 +1,12 @@
 import { useState, useRef } from "react";
+import { Eye, EyeOff } from "lucide-react";
 import { InteractiveMonsters } from "@/components/monsters/InteractiveMonsters";
 
 export default function Login() {
   const [isFormFocused, setIsFormFocused] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const blurTimeoutRef = useRef<number | null>(null);
+  const passwordInputRef = useRef<HTMLInputElement>(null);
 
   const handleFocus = () => {
     // Clear any pending blur timeout
@@ -27,7 +30,10 @@ export default function Login() {
         <div className="flex-1 relative bg-gray-200 p-12 flex items-center justify-center">
           {/* Geometric shapes with eyes */}
           <div className="relative w-full max-w-md h-96">
-            <InteractiveMonsters isFormFocused={isFormFocused} />
+            <InteractiveMonsters
+              isFormFocused={isFormFocused}
+              isPasswordVisible={showPassword}
+            />
           </div>
         </div>
 
@@ -67,12 +73,27 @@ export default function Login() {
                 </label>
                 <div className="relative">
                   <input
-                    type="password"
+                    ref={passwordInputRef}
+                    type={showPassword ? "text" : "password"}
                     id="password"
                     className="w-full px-0 py-3 pr-10 border-0 border-b-2 border-gray-300 focus:border-gray-900 focus:outline-none focus:ring-0 transition-colors"
                     onFocus={handleFocus}
                     onBlur={handleBlur}
                   />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowPassword(!showPassword);
+                      passwordInputRef.current?.focus();
+                    }}
+                    className="absolute right-0 top-1/2 -translate-y-1/2 p-2 text-gray-400 hover:text-gray-600 transition-colors"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="w-5 h-5" />
+                    ) : (
+                      <Eye className="w-5 h-5" />
+                    )}
+                  </button>
                 </div>
               </div>
 

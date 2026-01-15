@@ -7,6 +7,7 @@ import { Nugget } from "./monsters/Nugget";
 
 interface InteractiveMonstersProps {
   isFormFocused?: boolean;
+  isPasswordVisible?: boolean;
 }
 
 /**
@@ -16,6 +17,7 @@ interface InteractiveMonstersProps {
  */
 export function InteractiveMonsters({
   isFormFocused = false,
+  isPasswordVisible = false,
 }: InteractiveMonstersProps) {
   const containerRef = useRef<SVGSVGElement>(null);
   const cursorX = useMotionValue(200);
@@ -54,17 +56,25 @@ export function InteractiveMonsters({
         cursorX={cursorX}
         cursorY={cursorY}
         isFormFocused={isFormFocused}
+        isPasswordVisible={isPasswordVisible}
       />
-      <Inky cursorX={cursorX} cursorY={cursorY} isFormFocused={isFormFocused} />
+      <Inky
+        cursorX={cursorX}
+        cursorY={cursorY}
+        isFormFocused={isFormFocused}
+        isPasswordVisible={isPasswordVisible}
+      />
       <Gloop
         cursorX={cursorX}
         cursorY={cursorY}
         isFormFocused={isFormFocused}
+        isPasswordVisible={isPasswordVisible}
       />
       <Nugget
         cursorX={cursorX}
         cursorY={cursorY}
         isFormFocused={isFormFocused}
+        isPasswordVisible={isPasswordVisible}
       />
     </svg>
   );

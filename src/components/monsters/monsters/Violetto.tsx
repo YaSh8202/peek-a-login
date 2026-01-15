@@ -12,6 +12,7 @@ interface ViolettoProps {
   cursorX: MotionValue<number>;
   cursorY: MotionValue<number>;
   isFormFocused?: boolean;
+  isPasswordVisible?: boolean;
 }
 
 /**
@@ -22,6 +23,7 @@ export function Violetto({
   cursorX,
   cursorY,
   isFormFocused = false,
+  isPasswordVisible = false,
 }: ViolettoProps) {
   // Body dimensions
   const bodyX = 135;
@@ -52,7 +54,55 @@ export function Violetto({
     maxPupilDistance: 4,
   });
 
+  // Averting gaze state - eyes look left when password is visible
+  // Face/sclera moves left, pupil moves even further left to be at edge of eye
+  const avertFaceX = useMotionValue(0);
+  const avertFaceY = useMotionValue(0);
+  const avertPupilX = useMotionValue(0);
+  const avertPupilY = useMotionValue(0);
+  const smoothAvertFaceX = useSpring(avertFaceX, {
+    stiffness: 120,
+    damping: 20,
+  });
+  const smoothAvertFaceY = useSpring(avertFaceY, {
+    stiffness: 120,
+    damping: 20,
+  });
+  const smoothAvertPupilX = useSpring(avertPupilX, {
+    stiffness: 120,
+    damping: 20,
+  });
+  const smoothAvertPupilY = useSpring(avertPupilY, {
+    stiffness: 120,
+    damping: 20,
+  });
+
+  // Password visible as MotionValue for reactive transforms
+  const passwordVisibleFactor = useMotionValue(0);
+  const smoothPasswordVisible = useSpring(passwordVisibleFactor, {
+    stiffness: 120,
+    damping: 20,
+  });
+
+  useEffect(() => {
+    // When password visible, face moves left, pupil moves further left (to edge of sclera)
+    // Sclera radius is 8, pupil radius is 4, so pupil can move ~4px within eye
+    avertFaceX.set(isPasswordVisible ? -15 : 0);
+    avertFaceY.set(0);
+    avertPupilX.set(isPasswordVisible ? -19 : 0); // -15 face + -4 pupil offset
+    avertPupilY.set(0);
+    passwordVisibleFactor.set(isPasswordVisible ? 1 : 0);
+  }, [
+    isPasswordVisible,
+    avertFaceX,
+    avertFaceY,
+    avertPupilX,
+    avertPupilY,
+    passwordVisibleFactor,
+  ]);
+
   // Lean animation when form is focused - use skewX to keep base flat
+  // Disabled when password is visible (averting gaze)
   const leanSkewValue = useMotionValue(0);
   const leanSkew = useSpring(leanSkewValue, {
     stiffness: 1000,
@@ -62,25 +112,75 @@ export function Violetto({
 
   useEffect(() => {
     // Negative skewX leans the top to the right while keeping bottom flat
-    leanSkewValue.set(isFormFocused ? -8 : 0);
-  }, [isFormFocused, leanSkewValue]);
+    // Don't lean when password is visible (averting gaze)
+    leanSkewValue.set(isFormFocused && !isPasswordVisible ? -8 : 0);
+  }, [isFormFocused, isPasswordVisible, leanSkewValue]);
 
   // Combine face offset with pupil offset for total pupil position
+  // Interpolate between normal tracking and avert gaze based on password visibility
   const leftPupilTotalX = useTransform(
-    [face.faceOffsetX, face.pupilOffsetX],
-    ([fx, px]) => (fx as number) + (px as number)
+    [
+      face.faceOffsetX,
+      face.pupilOffsetX,
+      smoothAvertPupilX,
+      smoothPasswordVisible,
+    ],
+    ([fx, px, ax, pv]) => {
+      const normal = (fx as number) + (px as number);
+      const avert = ax as number;
+      return normal * (1 - (pv as number)) + avert * (pv as number);
+    }
   );
   const leftPupilTotalY = useTransform(
-    [face.faceOffsetY, face.pupilOffsetY],
-    ([fy, py]) => (fy as number) + (py as number)
+    [
+      face.faceOffsetY,
+      face.pupilOffsetY,
+      smoothAvertPupilY,
+      smoothPasswordVisible,
+    ],
+    ([fy, py, ay, pv]) => {
+      const normal = (fy as number) + (py as number);
+      const avert = ay as number;
+      return normal * (1 - (pv as number)) + avert * (pv as number);
+    }
   );
   const rightPupilTotalX = useTransform(
-    [face.faceOffsetX, face.pupilOffsetX],
-    ([fx, px]) => (fx as number) + (px as number)
+    [
+      face.faceOffsetX,
+      face.pupilOffsetX,
+      smoothAvertPupilX,
+      smoothPasswordVisible,
+    ],
+    ([fx, px, ax, pv]) => {
+      const normal = (fx as number) + (px as number);
+      const avert = ax as number;
+      return normal * (1 - (pv as number)) + avert * (pv as number);
+    }
   );
   const rightPupilTotalY = useTransform(
-    [face.faceOffsetY, face.pupilOffsetY],
-    ([fy, py]) => (fy as number) + (py as number)
+    [
+      face.faceOffsetY,
+      face.pupilOffsetY,
+      smoothAvertPupilY,
+      smoothPasswordVisible,
+    ],
+    ([fy, py, ay, pv]) => {
+      const normal = (fy as number) + (py as number);
+      const avert = ay as number;
+      return normal * (1 - (pv as number)) + avert * (pv as number);
+    }
+  );
+
+  // Face offset - interpolate between normal and avert gaze
+  const faceX = useTransform(
+    [face.faceOffsetX, smoothAvertFaceX, smoothPasswordVisible],
+    ([fx, ax, pv]) =>
+      (fx as number) * (1 - (pv as number)) + (ax as number) * (pv as number)
+  );
+  const faceY = useTransform(
+    [face.faceOffsetY, smoothAvertFaceY, smoothPasswordVisible],
+    ([fy, ay, pv]) =>
+      (fy as number) * (1 - (pv as number)) + (ay as number) * (pv as number)
   );
 
   return (
@@ -111,8 +211,8 @@ export function Violetto({
             r={8}
             fill="white"
             style={{
-              x: face.faceOffsetX,
-              y: face.faceOffsetY,
+              x: faceX,
+              y: faceY,
               translateX: faceCenterX + leftEyeOffsetX,
               translateY: faceCenterY + eyeOffsetY,
             }}
@@ -149,8 +249,8 @@ export function Violetto({
             r={8}
             fill="white"
             style={{
-              x: face.faceOffsetX,
-              y: face.faceOffsetY,
+              x: faceX,
+              y: faceY,
               translateX: faceCenterX + rightEyeOffsetX,
               translateY: faceCenterY + eyeOffsetY,
             }}
@@ -183,7 +283,7 @@ export function Violetto({
           />
 
           {/* Mouth - changes based on focus state */}
-          {isFormFocused ? (
+          {isFormFocused && !isPasswordVisible ? (
             /* Focused: Attentive vertical line mouth */
             <motion.rect
               x={faceCenterX - 1.5}
@@ -193,8 +293,8 @@ export function Violetto({
               rx={1.5}
               fill="black"
               style={{
-                x: face.faceOffsetX,
-                y: face.faceOffsetY,
+                x: faceX,
+                y: faceY,
               }}
             />
           ) : (
@@ -210,8 +310,8 @@ export function Violetto({
               strokeLinecap="round"
               fill="none"
               style={{
-                x: face.faceOffsetX,
-                y: face.faceOffsetY,
+                x: faceX,
+                y: faceY,
               }}
             />
           )}

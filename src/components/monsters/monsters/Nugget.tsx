@@ -11,6 +11,7 @@ interface NuggetProps {
   cursorX: MotionValue<number>;
   cursorY: MotionValue<number>;
   isFormFocused?: boolean;
+  isPasswordVisible?: boolean;
 }
 
 /**
@@ -22,6 +23,7 @@ export function Nugget({
   cursorX,
   cursorY,
   isFormFocused = false,
+  isPasswordVisible = false,
 }: NuggetProps) {
   // Body dimensions
   const bodyLeft = 320;
@@ -32,12 +34,26 @@ export function Nugget({
 
   // Face center
   const faceCenterX = bodyCenterX;
-  const faceCenterY = bodyTop + 0; // Near top of body
+  const faceCenterY = bodyTop - 10; // Near top of body
+
+  // Avert gaze state - look left when password visible
+  const avertRotation = useMotionValue(0);
+  const smoothAvertRotation = useSpring(avertRotation, {
+    stiffness: 100,
+    damping: 15,
+  });
+
+  useEffect(() => {
+    // -1 = looking left (averting gaze)
+    avertRotation.set(isPasswordVisible ? -1 : 0);
+  }, [isPasswordVisible, avertRotation]);
 
   // Calculate horizontal rotation factor (-1 = looking left, 0 = center, 1 = looking right)
+  // When password visible, use avert rotation instead
   const rotationFactor = useSpring(
-    useTransform(cursorX, (cx) => {
-      const dx = cx - faceCenterX;
+    useTransform([cursorX, smoothAvertRotation], ([cx, avert]) => {
+      if (isPasswordVisible) return avert as number;
+      const dx = (cx as number) - faceCenterX;
       // Normalize: -1 to 1 based on distance, with sensitivity
       return Math.max(-1, Math.min(1, dx / 150));
     }),
@@ -91,6 +107,7 @@ export function Nugget({
   });
 
   // Lean animation when form is focused - use skewX to keep base flat
+  // Disabled when password is visible (averting gaze)
   const leanSkewValue = useMotionValue(0);
   const leanSkew = useSpring(leanSkewValue, {
     stiffness: 1000,
@@ -100,8 +117,9 @@ export function Nugget({
 
   useEffect(() => {
     // Negative skewX leans the top to the right while keeping bottom flat
-    leanSkewValue.set(isFormFocused ? -5 : 0);
-  }, [isFormFocused, leanSkewValue]);
+    // Don't lean when password is visible (averting gaze)
+    leanSkewValue.set(isFormFocused && !isPasswordVisible ? -5 : 0);
+  }, [isFormFocused, isPasswordVisible, leanSkewValue]);
 
   return (
     <g>
