@@ -84,7 +84,14 @@ export default function Login() {
                     type="button"
                     onClick={() => {
                       setShowPassword(!showPassword);
-                      passwordInputRef.current?.focus();
+                      const input = passwordInputRef.current;
+                      if (input) {
+                        input.focus();
+                        // Move cursor to end after input type updates
+                        setTimeout(() => {
+                          input.setSelectionRange(input.value.length, input.value.length);
+                        }, 0);
+                      }
                     }}
                     className="absolute right-0 top-1/2 -translate-y-1/2 p-2 text-gray-400 hover:text-gray-600 transition-colors"
                   >
