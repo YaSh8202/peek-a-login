@@ -182,18 +182,16 @@ export function Nugget({
               stroke="black"
               strokeWidth={4}
               strokeLinecap="round"
-              style={{
-                x1: useTransform(
-                  [mouthCenterX, mouthWidth],
-                  ([cx, w]) => (cx as number) - (w as number)
-                ),
-                x2: useTransform(
-                  [mouthCenterX, mouthWidth],
-                  ([cx, w]) => (cx as number) + (w as number)
-                ),
-                y1: mouthY,
-                y2: mouthY,
-              }}
+              x1={useTransform(
+                [mouthCenterX, mouthWidth],
+                ([cx, w]) => (cx as number) - (w as number)
+              )}
+              x2={useTransform(
+                [mouthCenterX, mouthWidth],
+                ([cx, w]) => (cx as number) + (w as number)
+              )}
+              y1={mouthY}
+              y2={mouthY}
             />
           </g>
         </motion.g>

@@ -30,7 +30,7 @@ export function Gloop({
   const bodyLeft = 60;
   const bodyRight = 260;
   const bodyTop = 230;
-  const bodyBottom = 360;
+  // const bodyBottom = 360;
   const bodyWidth = bodyRight - bodyLeft; // 200
 
   // Head region (upper portion of dome)
